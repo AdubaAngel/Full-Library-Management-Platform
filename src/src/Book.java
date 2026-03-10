@@ -10,7 +10,9 @@ public class Book {
     private LocalDate publicationDate;  // Just use this, remove publicationYear
     private LocalDate dueDate;
     private LocalDate borrowDate;
-    private Integer borrowedByUserId;  // To track who borrowed it
+    private Integer borrowedByUserId; // To track who borrowed it
+
+    //Next we will be back after working on a class to track the borrowing record of each book
 
     // Constructor - keep it simple
     Book(String title, String author, String isbn, LocalDate publicationDate) {
