@@ -53,9 +53,16 @@ public class BorrowRecord {
     }
 
     // When book is returned
-    public void returnBook(LocalDate returnDate) {
+    // Default rate
+    public double returnBook(LocalDate returnDate) {
+        return returnBook(returnDate, 0.50);
+    }
+
+    // Custom rate
+    public double returnBook(LocalDate returnDate, double dailyLateFee) {
         this.returnDate = returnDate;
-        this.lateFee = calculateLateFee(0.50);  // $0.50 per day late
+        this.lateFee = calculateLateFee(dailyLateFee);
+        return this.lateFee;
     }
 
     // Calculate late fee based on daily rate
