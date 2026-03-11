@@ -5,11 +5,11 @@ public class User {
     private String name;
     private String email;
     private String phone;
+    private int borrowLimit = 7;
     ArrayList<String> booksBorrowed = new ArrayList<String>();
 
 
-    User(int id, String name, String email, String phone) {
-        this.id = id;
+    User(String name, String email, String phone) {
         this.name = name;
         this.email = email;
         this.phone = phone;
@@ -31,12 +31,29 @@ public class User {
         return phone;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+
     public void borrowBook(String bookName) {
         if (!booksBorrowed.contains(bookName)) {
             booksBorrowed.add(bookName);
         }
 
-        if(booksBorrowed.size() <= 7){
+        if(booksBorrowed.size() <= borrowLimit) {
             System.out.println("Sorry " + name + " you have reached the limit of books you're allowed to borrow.");
         }
 
