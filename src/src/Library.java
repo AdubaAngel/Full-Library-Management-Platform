@@ -61,6 +61,8 @@ public class Library {
             System.out.println("Apologies we were unable to find a user with the id " + userId + "!");
             return null;
         }
+
+        Book book = books.get(bookId);
         // Check if book exists and is available
         if(books.containsKey(bookId)) {
             System.out.println("The book " + userId + " exists!!");
@@ -68,6 +70,12 @@ public class Library {
             System.out.println("Apologies we were unable to find a book with the id " + bookId + "!");
             return null;
         }
+
+        if(!book.isAvailable()){
+            System.out.println("The book " + userId + " is not available!");
+            return null;
+        }
+
 
         // Check if user under limit
         // Create borrow record
