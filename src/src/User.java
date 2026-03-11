@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.List;
 
 public class User {
     private int id;
@@ -6,7 +7,7 @@ public class User {
     private String email;
     private String phone;
     private int borrowLimit = 7;
-    ArrayList<String> booksBorrowed = new ArrayList<String>();
+    private List<Integer> booksBorrowed = new ArrayList<>();
 
 
     User(String name, String email, String phone) {
@@ -50,7 +51,7 @@ public class User {
 
     public void borrowBook(String bookName) {
         if (!booksBorrowed.contains(bookName)) {
-            booksBorrowed.add(bookName);
+            booksBorrowed.add(Integer.valueOf(bookName));
         }
 
         if(booksBorrowed.size() <= borrowLimit) {

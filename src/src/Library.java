@@ -53,9 +53,22 @@ public class Library {
     }
 
     // Borrowing logic
-    public boolean borrowBook(int userId, int bookId) {
+    public BorrowRecord borrowBook(int userId, int bookId) {
         // Check if user exists
+        if(users.containsKey(userId)) {
+            System.out.println("User " + userId + " exists!!");
+        }else{
+            System.out.println("Apologies we were unable to find a user with the id " + userId + "!");
+            return null;
+        }
         // Check if book exists and is available
+        if(books.containsKey(bookId)) {
+            System.out.println("The book " + userId + " exists!!");
+        }else{
+            System.out.println("Apologies we were unable to find a book with the id " + bookId + "!");
+            return null;
+        }
+
         // Check if user under limit
         // Create borrow record
         // Update book availability
