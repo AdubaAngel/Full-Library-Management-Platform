@@ -25,6 +25,10 @@ public class Library {
     private int nextUserId = 1000;
     private int idIncrements = 7;
 
+    public String getName() {
+        return name;
+    }
+
     // Book management
     public int addBook(Book book) {
         // What info do you need? How to generate bookId?
@@ -112,6 +116,23 @@ public class Library {
 
         // Step 2: Find active loan
         BorrowRecord activeLoan = null;
+
+        // Loop through activeLoans to find matching record
+        for (BorrowRecord record : activeLoans) {
+            // Your condition here
+            if (record.getUserId() == userId &&
+                    record.getBookId() == bookId &&
+                    record.getReturnDate() == null) {
+                activeLoan = record;
+                break;  // Can break immediately when found
+            }
+        }
+
+        if (activeLoan == null) {
+            System.out.println("No active loan found for user " + userId + " and book " + bookId);
+            return -1.0; //-1.0 indicates that there was an error in locating the book they want to return
+                         //this doesn't mean no errors, it means we could not locate what the user wants to return
+        }
         return 0;
     }
 
@@ -141,4 +162,5 @@ public class Library {
         // Sum all late fees from user's history
         return 0;
     }
+
 }
