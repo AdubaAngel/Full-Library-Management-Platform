@@ -104,12 +104,26 @@ public class Library {
 
     // Returning logic
     public double returnBook(int userId, int bookId) {
-        // Find active loan
-        // Call returnBook() on the record
-        // Update book availability
-        // Move from activeLoans to borrowHistory
-        // Return the fee
+        // Step 1: Verify ID pattern (you'll need a helper method for this)
+        if (!isValidLibraryId(bookId)) {
+            System.out.println("Invalid book ID format for this library!");
+            return -1.0;  // Error indicator
+        }
+
+        // Step 2: Find active loan
+        BorrowRecord activeLoan = null;
         return 0;
+    }
+
+
+    private boolean isValidLibraryId(int bookId) {
+        //This method verifies that the id of the book the user wants to return matches the id used in this library for the books
+        if((bookId - 1000) % 7 == 0){
+            return true;
+        }else{
+            return false;
+        }
+
     }
 
     // Reports
