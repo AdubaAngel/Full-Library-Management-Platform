@@ -124,52 +124,41 @@ public class Library {
 
     // Returning logic
     public double returnBook(int userId, int bookId) {
-        // Step 1: Verify ID pattern (you'll need a helper method for this)
+        // Step 1: Verify ID pattern
         if (!isValidLibraryId(bookId)) {
             System.out.println("Invalid book ID format for this library!");
-            return -1.0;  // Error indicator
+            return -1.0;
         }
 
         // Step 2: Find active loan
         BorrowRecord activeLoan = null;
-
-        // Loop through activeLoans to find matching record
         for (BorrowRecord record : activeLoans) {
             if (record.getUserId() == userId &&
                     record.getBookId() == bookId &&
                     record.getReturnDate() == null) {
-
                 activeLoan = record;
-                break;  // Found it! Stop searching
+                break;
             }
         }
 
-        // After the loop, check if found and process
+        // Step 3: Process if found
         if (activeLoan != null) {
-            // Get the book and user objects
             Book book = books.get(bookId);
             User user = users.get(userId);
 
-            // Process the return
             activeLoan.returnBook(LocalDate.now(), DAILY_LATE_FEE);
             double fee = activeLoan.getLateFee();
 
-            // Update book and user
             book.setAvailable(true);
             user.removeBorrowedBook(bookId);
-
-            // Remove from active loans (outside the loop)
             activeLoans.remove(activeLoan);
 
             return fee;
         }
 
-        if (activeLoan == null) {
-            System.out.println("No active loan found for user " + userId + " and book " + bookId);
-            return -1.0; //-1.0 indicates that there was an error in locating the book they want to return
-                         //this doesn't mean no errors, it means we could not locate what the user wants to return
-        }
-        return 0;
+        // Step 4: Not found (no extra return needed!)
+        System.out.println("No active loan found for user " + userId + " and book " + bookId);
+        return -1.0;
     }
 
 
