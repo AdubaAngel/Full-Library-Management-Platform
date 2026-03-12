@@ -52,17 +52,10 @@ public class BorrowRecord {
         return ChronoUnit.DAYS.between(dueDate, returnDate);
     }
 
-    // When book is returned
-    // Default rate
-    public double returnBook(LocalDate returnDate) {
-        return returnBook(returnDate, 0.50);
-    }
-
     // Custom rate
-    public double returnBook(LocalDate returnDate, double dailyLateFee) {
+    public void returnBook(LocalDate returnDate, double dailyRate) {
         this.returnDate = returnDate;
-        this.lateFee = calculateLateFee(dailyLateFee);
-        return this.lateFee;
+        this.lateFee = calculateLateFee(dailyRate);
     }
 
     // Calculate late fee based on daily rate

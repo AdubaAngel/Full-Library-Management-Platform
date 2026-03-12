@@ -86,8 +86,13 @@ public class Library {
         LocalDate borrowDate = LocalDate.now();
         LocalDate dueDate = borrowDate.plusDays(LOAN_DURATION_DAYS);
 
-        BorrowRecord record = new BorrowRecord(bookId, userId, book.getTitle(),
-                borrowDate, dueDate);
+        BorrowRecord record = new BorrowRecord(
+                bookId,
+                userId,
+                book.getTitle(),
+                borrowDate,
+                dueDate
+        );
 
         activeLoans.add(record);
         borrowHistory.add(record);
