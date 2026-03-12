@@ -1,3 +1,4 @@
+import java.time.LocalDate;
 import java.util.*;
 
 public class Library {
@@ -36,6 +37,7 @@ public class Library {
 
     public Book findBookByTitle(String title) {
         // Search through books
+        return null;
     }
 
     // User management
@@ -55,16 +57,20 @@ public class Library {
     // Borrowing logic
     public BorrowRecord borrowBook(int userId, int bookId) {
         // Check if user exists
+        User user = null;
+        Book book = null;
         if(users.containsKey(userId)) {
             System.out.println("User " + userId + " exists!!");
+            user = users.get(userId);
         }else{
             System.out.println("Apologies we were unable to find a user with the id " + userId + "!");
             return null;
         }
+
         // Check if book exists and is available
         if(books.containsKey(bookId)) {
             System.out.println("The book " + bookId + " exists!!");
-            Book book = books.get(bookId);
+            book = books.get(bookId);
 
             if(!book.isAvailable()){
                 System.out.println("The book " + bookId + " is not available!");
@@ -75,7 +81,20 @@ public class Library {
             return null;
         }
 
-        return null;
+        user.addBorrowedBook(bookId);
+
+        LocalDate borrowDate = LocalDate.now();
+        LocalDate dueDate = borrowDate.plusDays(LOAN_DURATION_DAYS);
+
+        BorrowRecord record = new BorrowRecord(bookId, userId, book.getTitle(),
+                borrowDate, dueDate);
+
+        activeLoans.add(record);
+        borrowHistory.add(record);
+
+        book.setAvailable(false);
+
+        return record;
     }
 
     // Returning logic
@@ -85,15 +104,18 @@ public class Library {
         // Update book availability
         // Move from activeLoans to borrowHistory
         // Return the fee
+        return 0;
     }
 
     // Reports
     public List<BorrowRecord> getOverdueBooks() {
         // Return all active loans where isOverdue() is true
+        return List.of();
     }
 
     public List<BorrowRecord> getUserBorrowHistory(int userId) {
         // Return all records for a specific user
+        return List.of();
     }
 
     public double getTotalLateFeesForUser(int userId) {

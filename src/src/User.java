@@ -59,4 +59,20 @@ public class User {
         }
 
     }
+
+    public void addBorrowedBook(int bookId) {
+        booksBorrowed.add(bookId);
+    }
+
+    public void removeBorrowedBook(int bookId) {
+        booksBorrowed.remove((Integer) bookId);
+    }
+
+    public int getBorrowedBookCount() {
+        return booksBorrowed.size();
+    }
+
+    public boolean hasBorrowedBook(int bookId) {
+        return booksBorrowed.contains(bookId);
+    }
 }
