@@ -135,13 +135,33 @@ public class Library {
 
         // Loop through activeLoans to find matching record
         for (BorrowRecord record : activeLoans) {
-            // Your condition here
             if (record.getUserId() == userId &&
                     record.getBookId() == bookId &&
                     record.getReturnDate() == null) {
+
                 activeLoan = record;
-                break;  // Can break immediately when found
+                break;  // Found it! Stop searching
             }
+        }
+
+        // After the loop, check if found and process
+        if (activeLoan != null) {
+            // Get the book and user objects
+            Book book = books.get(bookId);
+            User user = users.get(userId);
+
+            // Process the return
+            activeLoan.returnBook(LocalDate.now(), DAILY_LATE_FEE);
+            double fee = activeLoan.getLateFee();
+
+            // Update book and user
+            book.setAvailable(true);
+            user.removeBorrowedBook(bookId);
+
+            // Remove from active loans (outside the loop)
+            activeLoans.remove(activeLoan);
+
+            return fee;
         }
 
         if (activeLoan == null) {
