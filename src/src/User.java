@@ -49,18 +49,21 @@ public class User {
     }
 
 
-    public void borrowBook(int bookID) {
+    public boolean borrowBook(int bookID) {
         if(booksBorrowed.size() >= borrowLimit) {
             System.out.println("Sorry " + name + " you have reached the limit of books you're allowed to borrow.");
-            return;
+            return false;
         }
 
         if (!booksBorrowed.contains(bookID)) {
             booksBorrowed.add(bookID);
             System.out.println("Book " + bookID + " added to your borrowed list.");
+            return true;
         } else {
             System.out.println("You already have book " + bookID + " checked out.");
+            return false;
         }
+
     }
 
     public void addBorrowedBook(int bookId) {
