@@ -29,6 +29,22 @@ public class Library {
         return name;
     }
 
+    public int getBookCount() {
+        return books.size();
+    }
+
+    public int getUserCount() {
+        return users.size();
+    }
+
+    public int getActiveLoanCount() {
+        return activeLoans.size();
+    }
+
+    public int getBorrowHistoryCount() {
+        return borrowHistory.size();
+    }
+
     // Book management
     public int addBook(Book book) {
         // What info do you need? How to generate bookId?
