@@ -174,8 +174,20 @@ public class Library {
 
     // Reports
     public List<BorrowRecord> getOverdueBooks() {
-        // Return all active loans where isOverdue() is true
-        return List.of();
+        // Create a new list to hold overdue records
+        List<BorrowRecord> overdueBooks = new ArrayList<>();
+
+        // Loop through activeLoans
+        for (BorrowRecord record : activeLoans) {
+            // Check if this record is overdue
+            if(record.isOverdue()){
+                overdueBooks.add(record);
+            }
+            // Use a method from BorrowRecord class!
+        }
+
+        // Return the list
+        return overdueBooks;
     }
 
     public List<BorrowRecord> getUserBorrowHistory(int userId) {
