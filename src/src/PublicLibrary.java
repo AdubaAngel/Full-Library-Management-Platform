@@ -3,21 +3,30 @@ import java.util.*;
 
 public class PublicLibrary implements Library {
     private String name;
+    private int startId;
+    private int idIncrements;
+    private int maxBooksPerUser;
+    private double dailyLateFee;
+    private int loanDurationDays;
+
     private Map<Integer, Book> books;
     private Map<Integer, User> users;
     private List<BorrowRecord> borrowHistory;
     private List<BorrowRecord> activeLoans;
 
-    private static final int MAX_BOOKS_PER_USER = 7;
-    private static final double DAILY_LATE_FEE = 0.50;
-    private static final int LOAN_DURATION_DAYS = 14;
+    private int nextBookId;
+    private int nextUserId;
 
-    private int nextBookId = 1000;
-    private int nextUserId = 1000;
-    private int idIncrements = 7;
-
-    public PublicLibrary(String name) {
+    public PublicLibrary(String name, int startId, int idIncrements,
+                         int maxBooksPerUser, double dailyLateFee, int loanDurationDays) {
         this.name = name;
+        this.startId = startId;
+        this.idIncrements = idIncrements;
+        this.maxBooksPerUser = maxBooksPerUser;
+        this.dailyLateFee = dailyLateFee;
+        this.loanDurationDays = loanDurationDays;
+        this.nextBookId = startId;
+        this.nextUserId = startId;
         this.books = new HashMap<>();
         this.users = new HashMap<>();
         this.borrowHistory = new ArrayList<>();
@@ -84,15 +93,15 @@ public class PublicLibrary implements Library {
             return null;
         }
 
-        if (user.getBorrowedBookCount() >= MAX_BOOKS_PER_USER) {
-            System.out.println("User has reached maximum books limit!");
+        if (user.getBorrowedBookCount() >= maxBooksPerUser) {
+            System.out.println("User has reached maximum books limit of " + maxBooksPerUser + "!");
             return null;
         }
 
         user.addBorrowedBook(bookId);
 
         LocalDate borrowDate = LocalDate.now();
-        LocalDate dueDate = borrowDate.plusDays(LOAN_DURATION_DAYS);
+        LocalDate dueDate = borrowDate.plusDays(loanDurationDays);
 
         BorrowRecord record = new BorrowRecord(
                 bookId, userId, book.getTitle(), borrowDate, dueDate
@@ -127,7 +136,7 @@ public class PublicLibrary implements Library {
             Book book = books.get(bookId);
             User user = users.get(userId);
 
-            activeLoan.returnBook(LocalDate.now(), DAILY_LATE_FEE);
+            activeLoan.returnBook(LocalDate.now(), dailyLateFee);
             double fee = activeLoan.getLateFee();
 
             book.setAvailable(true);
@@ -142,7 +151,8 @@ public class PublicLibrary implements Library {
     }
 
     private boolean isValidLibraryId(int bookId) {
-        return (bookId - 1000) % 7 == 0;
+        if (bookId < startId) return false;
+        return (bookId - startId) % idIncrements == 0;
     }
 
     @Override
