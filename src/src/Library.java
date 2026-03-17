@@ -193,19 +193,23 @@ public class Library {
     public List<BorrowRecord> getUserBorrowHistory(int userId) {
         // Create a new list to hold this user's records
         List<BorrowRecord> userHistory = new ArrayList<>();
-
         // Loop through borrowHistory (all transactions)
         for (BorrowRecord record : borrowHistory) {
             // Check if this record belongs to the user
-            // Use a getter method from BorrowRecord
+            if(record.getUserId() == userId){
+                userHistory.add(record);
+            }
         }
-
         // Return the list (empty if none found)
         return userHistory;
     }
     public double getTotalLateFeesForUser(int userId) {
-        // Sum all late fees from user's history
-        return 0;
+        double totalFees = 0.0;
+        for (BorrowRecord record : borrowHistory) {
+            if (record.getUserId() == userId) {
+                totalFees += record.getLateFee();
+            }
+        }
+        return totalFees;
     }
-
 }
