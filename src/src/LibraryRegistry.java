@@ -23,11 +23,39 @@ public class LibraryRegistry {
     public Library registerLibrary(String name, int startId, int increment,
                                    int maxBooks, double lateFee, int loanDays) {
         // Check if name already exists
+        if(nameToId.containsKey(name)) {
+            System.out.println(name + " already exists");
+        }
         // Check if pattern already exists
+
+        String patternKey = startId + "+" + increment;
+        if(patternToId.containsKey(patternKey)) {
+            System.out.println( "This pattern is already being used at another library");
+        }
         // Generate new library ID
+        int libraryId = nextLibraryId;
+        nextLibraryId++;
         // Create new PublicLibrary with all parameters
-        // Store in maps
-        // Return the library
+        PublicLibrary newLibrary = new PublicLibrary(name, startId, increment,
+                maxBooks, lateFee, loanDays);
+        libraries.put(libraryId, newLibrary);
+        nameToId.put(name, libraryId);
+        patternToId.put(patternKey, libraryId);
+
+        // Step 6: Success message
+        System.out.println("✅ Library registered: " + name +
+                " (ID: " + libraryId + ", Pattern: " + patternKey + ")");
+
+        // Step 7: Return the new library
+        return newLibrary;
+    }
+
+    public Library getLibraryByName(String selected) {
+        return null;
+    }
+
+    public Library getLibraryById(int libraryId) {
+        // Your code here
         return null;
     }
 }
