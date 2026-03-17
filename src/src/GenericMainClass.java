@@ -1,11 +1,9 @@
-import java.time.LocalDate;
-
 public class GenericMainClass {
     public static void main(String[] args) {
         System.out.println("=== LIBRARY SYSTEM TEST ===\n");
 
         // ===== STEP 1: Create a library =====
-        Library library = new Library("Downtown Library");
+        BaseLibrary library = new BaseLibrary("Downtown Library");
         System.out.println("Created: " + library.getName() + "\n");
 
         // ===== STEP 2: Add books =====

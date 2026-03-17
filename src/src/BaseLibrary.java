@@ -1,14 +1,14 @@
 import java.time.LocalDate;
 import java.util.*;
 
-public class Library {
+public class BaseLibrary {
     private String name;
     private Map<Integer, Book> books;           // bookId -> Book
     private Map<Integer, User> users;            // userId -> User
     private List<BorrowRecord> borrowHistory;    // All borrow records
     private List<BorrowRecord> activeLoans;      // Currently borrowed books
 
-    public Library(String name) {
+    public BaseLibrary(String name) {
         this.name = name;
         this.books = new HashMap<>();
         this.users = new HashMap<>();
