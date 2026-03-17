@@ -1,4 +1,4 @@
-# BaseLibrary Management System
+# PublicLibrary Management System
 
 A Java-based library management system that handles book borrowing, returns, and late fee calculations. This project demonstrates object-oriented programming principles, data structures, and real-world system design.
 
@@ -33,7 +33,7 @@ Tracks each borrowing transaction.
 - **Properties**: book ID, user ID, borrow date, due date, return date, late fee
 - **Methods**: calculate late fee, check overdue status, process return
 
-### `BaseLibrary.java`
+### `PublicLibrary.java`
 Main system controller.
 - **Properties**: book catalog, user registry, active loans, borrow history
 - **Methods**: add books, register users, process borrows/returns, generate reports
