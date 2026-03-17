@@ -55,9 +55,16 @@ public class Library {
 
     }
 
-    public Book findBookByTitle(String title) {
-        // Search through books
-        return null;
+    public List<Book> findBooksByTitle(String title) {
+        List<Book> matchingBooks = new ArrayList<>();
+        String searchLower = title.toLowerCase();
+
+        for (Book book : books.values()) {
+            if (book.getTitle().toLowerCase().contains(searchLower)) {
+                matchingBooks.add(book);
+            }
+        }
+        return matchingBooks;
     }
 
     // User management
