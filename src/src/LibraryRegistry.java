@@ -20,9 +20,14 @@ public class LibraryRegistry {
         this.nextLibraryId = 1;
     }
 
-    public Library registerLibrary(String libraryName, int libraryId) {
-
-
-        return Library;
+    public Library registerLibrary(String name, int startId, int increment,
+                                   int maxBooks, double lateFee, int loanDays) {
+        // Check if name already exists
+        // Check if pattern already exists
+        // Generate new library ID
+        // Create new PublicLibrary with all parameters
+        // Store in maps
+        // Return the library
+        return null;
     }
 }
