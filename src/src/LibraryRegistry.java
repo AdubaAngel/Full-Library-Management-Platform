@@ -62,8 +62,16 @@ public class LibraryRegistry {
         return libraries.getOrDefault(libraryId, null);
     }
 
+
     public List<Library> getAllLibraries() {
         // Return a list of all libraries from the map
-        return null;
+        ArrayList<Library> libraryList = new ArrayList<>(libraries.values());
+        // using libraries.values() and wrapping it in an ArrayList. Makes it easier to display all the items in the map
+        return libraryList;
+    }
+
+    public int getLibraryCount() {
+        int libraryCount = libraries.size();
+        return libraryCount;
     }
 }
