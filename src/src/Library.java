@@ -1,4 +1,5 @@
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 
 public interface Library {
@@ -27,4 +28,8 @@ public interface Library {
     int getUserCount();
     int getActiveLoanCount();
     int getBorrowHistoryCount();
+
+    // Add after your other methods
+    Collection<Book> getAllBooks();
+    Collection<User> getAllUsers();
 }

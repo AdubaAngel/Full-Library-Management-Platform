@@ -213,4 +213,14 @@ public class PublicLibrary implements Library {
     public int getBorrowHistoryCount() {
         return borrowHistory.size();
     }
+
+    @Override
+    public Collection<Book> getAllBooks() {
+        return books.values();  // books.values() returns all books in the map
+    }
+
+    @Override
+    public Collection<User> getAllUsers() {
+        return users.values();  // users.values() returns all users in the map
+    }
 }
