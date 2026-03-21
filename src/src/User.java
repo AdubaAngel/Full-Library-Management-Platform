@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class User {
     private int id;
     private String name;
@@ -8,13 +9,16 @@ public class User {
     private String phone;
     private int borrowLimit = 7;
     private List<Integer> booksBorrowed = new ArrayList<>();
+    private UserRole role;
 
 
-    User(String name, String email, String phone) {
+    User(String name, String email, String phone, UserRole role) {
         this.name = name;
         this.email = email;
         this.phone = phone;
+        this.role = role;
     }
+
 
     public int getId() {
         return id;
@@ -46,6 +50,15 @@ public class User {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public UserRole getRole() {
+        return role;
+    }
+
+    // Optional: Add setter if role can change
+    public void setRole(UserRole role) {
+        this.role = role;
     }
 
 
