@@ -50,12 +50,20 @@ public class LibraryRegistry {
         return newLibrary;
     }
 
-    public Library getLibraryByName(String selected) {
+    public Library getLibraryByName(String name) {
+        if(nameToId.containsKey(name)) {
+            return libraries.get(nameToId.get(name));
+        }
         return null;
     }
 
     public Library getLibraryById(int libraryId) {
         // Your code here
+        return libraries.getOrDefault(libraryId, null);
+    }
+
+    public List<Library> getAllLibraries() {
+        // Return a list of all libraries from the map
         return null;
     }
 }
