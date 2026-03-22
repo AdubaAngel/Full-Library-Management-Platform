@@ -5,9 +5,6 @@ public class PublicLibrary implements Library {
     private String name;
     private int startId;
     private int idIncrements;
-    private int maxBooksPerUser;
-    private double dailyLateFee;
-    private int loanDurationDays;
 
     private Map<Integer, Book> books;
     private Map<Integer, User> users;
@@ -20,8 +17,7 @@ public class PublicLibrary implements Library {
     private Map<UserRole, Integer> loanDaysByRole;
     private Map<UserRole, Double> lateFeeByRole;
 
-    public PublicLibrary(String name, int startId, int idIncrements,
-                         int maxBooksPerUser, double dailyLateFee, int loanDurationDays) {
+    public PublicLibrary(String name, int startId, int idIncrements) {
         this.name = name;
         this.startId = startId;
         this.idIncrements = idIncrements;
@@ -34,6 +30,7 @@ public class PublicLibrary implements Library {
         this.users = new HashMap<>();
         this.borrowHistory = new ArrayList<>();
         this.activeLoans = new ArrayList<>();
+        initializeRoleRules();
     }
 
     @Override
@@ -96,15 +93,15 @@ public class PublicLibrary implements Library {
             return null;
         }
 
-        if (user.getBorrowedBookCount() >= maxBooksPerUser) {
-            System.out.println("User has reached maximum books limit of " + maxBooksPerUser + "!");
+        if (user.getBorrowedBookCount() >= maxBooksByRole.get(user.getRole())) {
+            System.out.println("User has reached maximum books limit of " + maxBooksByRole.get(user.getRole()) + "!");
             return null;
         }
 
         user.addBorrowedBook(bookId);
 
         LocalDate borrowDate = LocalDate.now();
-        LocalDate dueDate = borrowDate.plusDays(loanDurationDays);
+        LocalDate dueDate = borrowDate.plusDays(loanDaysByRole.get(user.getRole()));
 
         BorrowRecord record = new BorrowRecord(
                 bookId, userId, book.getTitle(), borrowDate, dueDate
@@ -152,16 +149,17 @@ public class PublicLibrary implements Library {
 
         if (activeLoan != null) {
             Book book = books.get(bookId);
-            User user = users.get(userId);
+            User user = users.get(userId);  // Only declare once
 
-            activeLoan.returnBook(LocalDate.now(), dailyLateFee);
-            double fee = activeLoan.getLateFee();
+            double userLateFee = lateFeeByRole.get(user.getRole());
+            activeLoan.returnBook(LocalDate.now(), userLateFee);
+            double fee = activeLoan.getLateFee();  // Capture the fee
 
             book.setAvailable(true);
             user.removeBorrowedBook(bookId);
             activeLoans.remove(activeLoan);
 
-            return fee;
+            return fee;  // Return the captured fee
         }
 
         System.out.println("No active loan found for user " + userId + " and book " + bookId);
