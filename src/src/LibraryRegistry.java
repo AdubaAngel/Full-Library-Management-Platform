@@ -36,8 +36,7 @@ public class LibraryRegistry {
         int libraryId = nextLibraryId;
         nextLibraryId++;
         // Create new PublicLibrary with all parameters
-        PublicLibrary newLibrary = new PublicLibrary(name, startId, increment,
-                maxBooks, lateFee, loanDays);
+        PublicLibrary newLibrary = new PublicLibrary(name, startId, increment);
         libraries.put(libraryId, newLibrary);
         nameToId.put(name, libraryId);
         patternToId.put(patternKey, libraryId);
