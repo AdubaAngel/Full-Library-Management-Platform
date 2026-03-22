@@ -117,6 +117,21 @@ public class PublicLibrary implements Library {
         return record;
     }
 
+    private void initializeRoleRules(){
+        maxBooksByRole = new HashMap<>();
+        loanDaysByRole = new HashMap<>();
+        lateFeeByRole = new HashMap<>();
+
+        maxBooksByRole.put(UserRole.PATRON, 7);
+        maxBooksByRole.put(UserRole.GUEST, 2);
+
+        loanDaysByRole.put(UserRole.PATRON, 14);
+        loanDaysByRole.put(UserRole.GUEST, 7);
+
+        lateFeeByRole.put(UserRole.PATRON, 0.50);
+        lateFeeByRole.put(UserRole.GUEST, 1.00);
+    }
+
     @Override
     public double returnBook(int userId, int bookId) {
         if (!isValidLibraryId(bookId)) {
