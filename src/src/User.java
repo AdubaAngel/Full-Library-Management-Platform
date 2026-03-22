@@ -7,10 +7,17 @@ public class User {
     private String name;
     private String email;
     private String phone;
+    private int infractionPoints;      // Track policy violations
+    private int sickDaysTaken;          // Track sick leave
+    private int lateArrivals;           // Track attendance lateness
+    private int lateReturns;            // Track overdue books
+    private String userStatus;          // Behavior status (Active, Warning, Suspended)
+    private double pendingLateFees;     // Unpaid fees
+    private double paidLateFees;        // Historical paid fees
+    private String password;            // Hashed password for login
     private int borrowLimit = 7;
     private List<Integer> booksBorrowed = new ArrayList<>();
     private UserRole role;
-
 
     User(String name, String email, String phone, UserRole role) {
         this.name = name;
