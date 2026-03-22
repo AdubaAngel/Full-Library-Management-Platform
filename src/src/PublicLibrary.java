@@ -250,6 +250,28 @@ public class PublicLibrary implements Library {
 
     @Override
     public boolean hasPermission(int userId, String action) {
+        User user = users.get(userId);
+        if (user == null) return false;
+
+        UserRole role = user.getRole();
+
+        // Switch on the action requested
+        if (action.equals("add_book")) {
+            // Only EMPLOYEE, MANAGER can add books
+            return role == UserRole.EMPLOYEE || role == UserRole.MANAGER;
+        }
+
+        if (action.equals("borrow")) {
+            // Everyone EXCEPT GUEST can borrow
+            return role != UserRole.GUEST;
+        }
+
+        if (action.equals("view_all_users")) {
+            // EMPLOYEE and MANAGER can see all users
+            return role == UserRole.EMPLOYEE || role == UserRole.MANAGER;
+        }
+
+        // Default deny
         return false;
     }
 
