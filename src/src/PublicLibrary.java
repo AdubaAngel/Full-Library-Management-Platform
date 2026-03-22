@@ -119,6 +119,7 @@ public class PublicLibrary implements Library {
         loanDaysByRole = new HashMap<>();
         lateFeeByRole = new HashMap<>();
 
+        //PATRON AND GUEST
         maxBooksByRole.put(UserRole.PATRON, 7);
         maxBooksByRole.put(UserRole.GUEST, 2);
 
@@ -127,6 +128,23 @@ public class PublicLibrary implements Library {
 
         lateFeeByRole.put(UserRole.PATRON, 0.50);
         lateFeeByRole.put(UserRole.GUEST, 1.00);
+
+        //EMPLOYEES E.G (MANAGER, JUNIOR EMPLOYEE VOLUNTEER)
+        maxBooksByRole.put(UserRole.EMPLOYEE, 10);
+        loanDaysByRole.put(UserRole.EMPLOYEE, 20);
+        lateFeeByRole.put(UserRole.EMPLOYEE, 0.25);
+
+        maxBooksByRole.put(UserRole.MANAGER, 30);
+        loanDaysByRole.put(UserRole.MANAGER, 30);
+        lateFeeByRole.put(UserRole.MANAGER, 1.00);
+
+        maxBooksByRole.put(UserRole.JUNIOR_EMPLOYEE, 8);
+        loanDaysByRole.put(UserRole.JUNIOR_EMPLOYEE, 15);
+        lateFeeByRole.put(UserRole.JUNIOR_EMPLOYEE, 0.15);
+
+        maxBooksByRole.put(UserRole.VOLUNTEER, 12);
+        loanDaysByRole.put(UserRole.VOLUNTEER, 10);
+        lateFeeByRole.put(UserRole.VOLUNTEER, 0.10);
     }
 
     @Override
@@ -149,11 +167,11 @@ public class PublicLibrary implements Library {
 
         if (activeLoan != null) {
             Book book = books.get(bookId);
-            User user = users.get(userId);  // Only declare once
+            User user = users.get(userId);
 
             double userLateFee = lateFeeByRole.get(user.getRole());
             activeLoan.returnBook(LocalDate.now(), userLateFee);
-            double fee = activeLoan.getLateFee();  // Capture the fee
+            double fee = activeLoan.getLateFee();
 
             book.setAvailable(true);
             user.removeBorrowedBook(bookId);
@@ -247,11 +265,11 @@ public class PublicLibrary implements Library {
 
     @Override
     public Collection<Book> getAllBooks() {
-        return books.values();  // books.values() returns all books in the map
+        return books.values();
     }
 
     @Override
     public Collection<User> getAllUsers() {
-        return users.values();  // users.values() returns all users in the map
+        return users.values();
     }
 }
