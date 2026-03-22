@@ -16,17 +16,20 @@ public class PublicLibrary implements Library {
 
     private int nextBookId;
     private int nextUserId;
+    private Map<UserRole, Integer> maxBooksByRole;
+    private Map<UserRole, Integer> loanDaysByRole;
+    private Map<UserRole, Double> lateFeeByRole;
 
     public PublicLibrary(String name, int startId, int idIncrements,
                          int maxBooksPerUser, double dailyLateFee, int loanDurationDays) {
         this.name = name;
         this.startId = startId;
         this.idIncrements = idIncrements;
-        this.maxBooksPerUser = maxBooksPerUser;
-        this.dailyLateFee = dailyLateFee;
-        this.loanDurationDays = loanDurationDays;
         this.nextBookId = startId;
         this.nextUserId = startId;
+        maxBooksByRole = new HashMap<>();
+        loanDaysByRole = new HashMap<>();
+        lateFeeByRole = new HashMap<>();
         this.books = new HashMap<>();
         this.users = new HashMap<>();
         this.borrowHistory = new ArrayList<>();
@@ -212,6 +215,21 @@ public class PublicLibrary implements Library {
     @Override
     public int getBorrowHistoryCount() {
         return borrowHistory.size();
+    }
+
+    @Override
+    public boolean hasPermission(int userId, String action) {
+        return false;
+    }
+
+    @Override
+    public boolean canViewUserInfo(int viewerId, int targetUserId) {
+        return false;
+    }
+
+    @Override
+    public boolean canChangeUserRole(int managerId, int targetUserId, UserRole newRole) {
+        return false;
     }
 
     @Override

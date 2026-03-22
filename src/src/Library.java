@@ -29,6 +29,10 @@ public interface Library {
     int getActiveLoanCount();
     int getBorrowHistoryCount();
 
+    boolean hasPermission(int userId, String action);
+    boolean canViewUserInfo(int viewerId, int targetUserId);
+    boolean canChangeUserRole(int managerId, int targetUserId, UserRole newRole);
+
     // Add after your other methods
     Collection<Book> getAllBooks();
     Collection<User> getAllUsers();
