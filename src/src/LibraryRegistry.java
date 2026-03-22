@@ -21,7 +21,7 @@ public class LibraryRegistry {
     }
 
     public Library registerLibrary(String name, int startId, int increment,
-                                   int maxBooks, double lateFee, int loanDays) {
+                                   int employeeBaseLimit, int userBaseLimit) {
         // Check if name already exists
         if(nameToId.containsKey(name)) {
             System.out.println(name + " already exists");
@@ -36,7 +36,7 @@ public class LibraryRegistry {
         int libraryId = nextLibraryId;
         nextLibraryId++;
         // Create new PublicLibrary with all parameters
-        PublicLibrary newLibrary = new PublicLibrary(name, startId, increment);
+        PublicLibrary newLibrary = new PublicLibrary(name, startId, increment, employeeBaseLimit, userBaseLimit);
         libraries.put(libraryId, newLibrary);
         nameToId.put(name, libraryId);
         patternToId.put(patternKey, libraryId);
