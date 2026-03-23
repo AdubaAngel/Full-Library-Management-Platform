@@ -14,7 +14,15 @@ public class PublicLibrary implements Library {
     private List<BorrowRecord> activeLoans;
 
     private int nextBookId;
-    private int nextUserId;
+
+    // Role-based ID counters
+    private int nextPatronId;
+    private int nextEmployeeId;
+    private int nextManagerId;
+    private int nextGuestId;
+    private int idIncrement;
+
+    // Role-based rules maps
     private Map<UserRole, Integer> maxBooksByRole;
     private Map<UserRole, Integer> loanDaysByRole;
     private Map<UserRole, Double> lateFeeByRole;
@@ -27,18 +35,24 @@ public class PublicLibrary implements Library {
         this.idIncrements = idIncrements;
         this.employeeBaseLimit = employeeBaseLimit;
         this.userBaseLimit = userBaseLimit;
+
+        // Initialize ID counters based on role
+        this.idIncrement = idIncrements;
+        this.nextPatronId = startId;
+        this.nextEmployeeId = startId + 4000;
+        this.nextManagerId = startId + 8000;
+        this.nextGuestId = startId + 2000;
+
         this.nextBookId = startId;
-        this.nextUserId = startId;
+        this.books = new HashMap<>();
+        this.users = new HashMap<>();
+        this.borrowHistory = new ArrayList<>();
+        this.activeLoans = new ArrayList<>();
 
         maxBooksByRole = new HashMap<>();
         loanDaysByRole = new HashMap<>();
         lateFeeByRole = new HashMap<>();
         infractionLimitByRole = new HashMap<>();
-
-        this.books = new HashMap<>();
-        this.users = new HashMap<>();
-        this.borrowHistory = new ArrayList<>();
-        this.activeLoans = new ArrayList<>();
 
         initializeRoleRules();
     }
@@ -69,14 +83,103 @@ public class PublicLibrary implements Library {
         return matchingBooks;
     }
 
-    @Override
-    public int registerUser(User user) {
-        int localUserID = nextUserId;
-        user.setId(localUserID);
-        users.put(localUserID, user);
-        nextUserId += idIncrements;
-        return localUserID;
+    // ========== ID GENERATION METHODS ==========
+
+    public int generateIdForRole(UserRole role) {
+        int id;
+        switch (role) {
+            case PATRON:
+                id = nextPatronId;
+                nextPatronId += idIncrement;
+                break;
+            case EMPLOYEE:
+            case JUNIOR_EMPLOYEE:
+            case VOLUNTEER:
+                id = nextEmployeeId;
+                nextEmployeeId += idIncrement;
+                break;
+            case MANAGER:
+                id = nextManagerId;
+                nextManagerId += idIncrement;
+                break;
+            case GUEST:
+                id = nextGuestId;
+                nextGuestId += idIncrement;
+                break;
+            default:
+                id = nextPatronId;
+                nextPatronId += idIncrement;
+        }
+        return id;
     }
+
+    public User preRegisterUser(String name, String email, String phone, UserRole role) {
+        int userId = generateIdForRole(role);
+        User user = new User(name, email, phone, role);
+        user.setId(userId);
+        user.setUserStatus(UserStatus.PENDING_REGISTRATION);
+        users.put(userId, user);
+        System.out.println("📝 Pre-registered: " + name + " (ID: " + userId + ", Role: " + role + ")");
+        System.out.println("   Give this ID to the user to complete registration.");
+        return user;
+    }
+
+    public boolean completeRegistration(int userId, String password) {
+        User user = users.get(userId);
+        if (user == null) {
+            System.out.println("❌ User ID " + userId + " not found!");
+            return false;
+        }
+        if (user.getUserStatus() != UserStatus.PENDING_REGISTRATION) {
+            System.out.println("❌ User is not pending registration!");
+            return false;
+        }
+
+        user.setPassword(password);
+        user.setUserStatus(UserStatus.ACTIVE);
+        System.out.println("✅ Registration complete for " + user.getName() + " (ID: " + userId + ")");
+        return true;
+    }
+
+    public User login(int userId, String password) {
+        User user = users.get(userId);
+        if (user == null) {
+            System.out.println("❌ User ID " + userId + " not found!");
+            return null;
+        }
+        if (user.getUserStatus() != UserStatus.ACTIVE) {
+            System.out.println("❌ User is not active! Status: " + user.getUserStatus());
+            return null;
+        }
+        if (user.verifyPassword(password)) {
+            System.out.println("✅ Login successful: " + user.getName());
+            return user;
+        }
+        System.out.println("❌ Incorrect password!");
+        return null;
+    }
+
+    public List<User> getUsersWithStatus(UserStatus status) {
+        List<User> result = new ArrayList<>();
+        for (User user : users.values()) {
+            if (user.getUserStatus() == status) {
+                result.add(user);
+            }
+        }
+        return result;
+    }
+
+    public List<User> getAllUsersByRole(UserRole role) {
+        List<User> result = new ArrayList<>();
+        for (User user : users.values()) {
+            if (user.getRole() == role) {
+                result.add(user);
+            }
+        }
+        return result;
+    }
+
+    // ========== IMPLEMENTED INTERFACE METHODS ==========
 
     @Override
     public User findUserById(int userId) {
@@ -84,14 +187,24 @@ public class PublicLibrary implements Library {
     }
 
     @Override
+    public int registerUser(User user) {
+        // Legacy method - now use preRegisterUser and completeRegistration
+        int userId = generateIdForRole(user.getRole());
+        user.setId(userId);
+        user.setUserStatus(UserStatus.ACTIVE);
+        users.put(userId, user);
+        return userId;
+    }
+
+    @Override
     public BorrowRecord borrowBook(int userId, int bookId) {
         if (!users.containsKey(userId)) {
-            System.out.println("User " + userId + " not found!");
+            System.out.println("❌ User " + userId + " not found!");
             return null;
         }
 
         if (!books.containsKey(bookId)) {
-            System.out.println("Book " + bookId + " not found!");
+            System.out.println("❌ Book " + bookId + " not found!");
             return null;
         }
 
@@ -99,49 +212,160 @@ public class PublicLibrary implements Library {
         Book book = books.get(bookId);
 
         if (!book.isAvailable()) {
-            System.out.println("Book " + bookId + " is not available!");
+            System.out.println("❌ Book " + bookId + " is not available!");
             return null;
         }
 
         // Check if user is suspended
         if (user.isCurrentlySuspended()) {
-            System.out.println("User " + user.getName() + " is currently suspended until " +
-                    user.getSuspensionEndDate());
+            System.out.println("❌ " + user.getName() + " is suspended until " + user.getSuspensionEndDate());
+            return null;
+        }
+
+        // Check if user is terminated
+        if (user.isTerminated()) {
+            System.out.println("❌ " + user.getName() + " has been terminated!");
             return null;
         }
 
         Integer maxBooks = maxBooksByRole.get(user.getRole());
-        if (maxBooks == null) {
-            maxBooks = 5; // Default fallback
-        }
+        if (maxBooks == null) maxBooks = 5;
 
         if (user.getBorrowedBookCount() >= maxBooks) {
-            System.out.println("User has reached maximum books limit of " + maxBooks + "!");
+            System.out.println("❌ " + user.getName() + " has reached the limit of " + maxBooks + " books!");
             return null;
         }
 
         user.addBorrowedBook(bookId);
 
         Integer loanDays = loanDaysByRole.get(user.getRole());
-        if (loanDays == null) {
-            loanDays = 14; // Default fallback
-        }
+        if (loanDays == null) loanDays = 14;
 
         LocalDate borrowDate = LocalDate.now();
         LocalDate dueDate = borrowDate.plusDays(loanDays);
 
-        BorrowRecord record = new BorrowRecord(
-                bookId, userId, book.getTitle(), borrowDate, dueDate
-        );
+        BorrowRecord record = new BorrowRecord(bookId, userId, book.getTitle(), borrowDate, dueDate);
 
         activeLoans.add(record);
         borrowHistory.add(record);
         book.setAvailable(false);
 
+        System.out.println("✅ " + user.getName() + " borrowed \"" + book.getTitle() + "\" (Due: " + dueDate + ")");
         return record;
     }
 
-    private void initializeRoleRules(){
+    @Override
+    public double returnBook(int userId, int bookId) {
+        if (!isValidLibraryId(bookId)) {
+            System.out.println("❌ Invalid book ID format!");
+            return -1.0;
+        }
+
+        BorrowRecord activeLoan = null;
+        for (BorrowRecord record : activeLoans) {
+            if (record.getUserId() == userId && record.getBookId() == bookId && record.getReturnDate() == null) {
+                activeLoan = record;
+                break;
+            }
+        }
+
+        if (activeLoan == null) {
+            System.out.println("❌ No active loan found for user " + userId + " and book " + bookId);
+            return -1.0;
+        }
+
+        Book book = books.get(bookId);
+        User user = users.get(userId);
+
+        // Check if book is overdue
+        boolean wasOverdue = LocalDate.now().isAfter(activeLoan.getDueDate());
+
+        if (wasOverdue) {
+            user.addLateReturn();
+            int points = getLateReturnPoints(user.getRole());
+            addInfraction(userId, points);
+        }
+
+        Double lateFee = lateFeeByRole.get(user.getRole());
+        if (lateFee == null) lateFee = 0.50;
+
+        activeLoan.returnBook(LocalDate.now(), lateFee);
+        double fee = activeLoan.getLateFee();
+
+        if (fee > 0) {
+            user.addPendingFee(fee);
+            System.out.println("💰 Late fee of $" + fee + " added to " + user.getName() + "'s account");
+        }
+
+        book.setAvailable(true);
+        user.removeBorrowedBook(bookId);
+        activeLoans.remove(activeLoan);
+
+        System.out.println("✅ " + user.getName() + " returned \"" + book.getTitle() + "\"");
+        return fee;
+    }
+
+    private int getLateReturnPoints(UserRole role) {
+        switch (role) {
+            case MANAGER:
+                return 3;
+            case EMPLOYEE:
+            case JUNIOR_EMPLOYEE:
+            case VOLUNTEER:
+                return 1;
+            default:
+                return 1;
+        }
+    }
+
+    public void addInfraction(int userId, int points) {
+        User user = users.get(userId);
+        if (user == null) {
+            System.out.println("❌ User not found!");
+            return;
+        }
+
+        user.addInfractionPoints(points);
+
+        int limit = infractionLimitByRole.get(user.getRole());
+        int currentPoints = user.getInfractionPoints();
+
+        double warningThreshold = limit * 0.15;
+        double suspensionThreshold = limit * 0.50;
+
+        System.out.println("⚠️ " + user.getName() + " received " + points + " infraction point(s). Total: " + currentPoints + "/" + limit);
+
+        if (currentPoints >= limit) {
+            user.setUserStatus(UserStatus.TERMINATED);
+            System.out.println("🚫 " + user.getName() + " has been TERMINATED!");
+        } else if (currentPoints >= suspensionThreshold) {
+            if (user.getRole() == UserRole.EMPLOYEE || user.getRole() == UserRole.MANAGER) {
+                user.setUserStatus(UserStatus.TEMPORARY_LEAVE);
+                int weeks = user.getRole() == UserRole.MANAGER ? 0 : 2;
+                user.applySuspension(weeks);
+                System.out.println("⏸️ " + user.getName() + " has been placed on TEMPORARY LEAVE!");
+            } else {
+                user.setUserStatus(UserStatus.SUSPENDED);
+                user.applySuspension(1);
+                System.out.println("⏸️ " + user.getName() + " has been SUSPENDED for 1 week!");
+            }
+        } else if (currentPoints >= warningThreshold && user.getUserStatus() == UserStatus.ACTIVE) {
+            user.setUserStatus(UserStatus.WARNING);
+            System.out.println("⚠️ " + user.getName() + " has received a WARNING!");
+        }
+    }
+
+    public void resetInfractions() {
+        for (User user : users.values()) {
+            user.resetInfractionPoints();
+            if (user.getUserStatus() == UserStatus.WARNING) {
+                user.setUserStatus(UserStatus.ACTIVE);
+            }
+        }
+        System.out.println("📅 Annual infraction reset complete.");
+    }
+
+    private void initializeRoleRules() {
         // Borrowing rules
         maxBooksByRole.put(UserRole.PATRON, 7);
         maxBooksByRole.put(UserRole.GUEST, 2);
@@ -164,116 +388,13 @@ public class PublicLibrary implements Library {
         lateFeeByRole.put(UserRole.JUNIOR_EMPLOYEE, 0.15);
         lateFeeByRole.put(UserRole.VOLUNTEER, 0.10);
 
-        // Infraction limits (configurable per library)
+        // Infraction limits
         infractionLimitByRole.put(UserRole.PATRON, userBaseLimit);
         infractionLimitByRole.put(UserRole.GUEST, userBaseLimit - 5);
         infractionLimitByRole.put(UserRole.EMPLOYEE, employeeBaseLimit);
         infractionLimitByRole.put(UserRole.JUNIOR_EMPLOYEE, employeeBaseLimit);
         infractionLimitByRole.put(UserRole.VOLUNTEER, employeeBaseLimit);
         infractionLimitByRole.put(UserRole.MANAGER, employeeBaseLimit + 3);
-    }
-
-    @Override
-    public double returnBook(int userId, int bookId) {
-        if (!isValidLibraryId(bookId)) {
-            System.out.println("Invalid book ID format for this library!");
-            return -1.0;
-        }
-
-        BorrowRecord activeLoan = null;
-
-        for (BorrowRecord record : activeLoans) {
-            if (record.getUserId() == userId &&
-                    record.getBookId() == bookId &&
-                    record.getReturnDate() == null) {
-                activeLoan = record;
-                break;
-            }
-        }
-
-        if (activeLoan != null) {
-            Book book = books.get(bookId);
-            User user = users.get(userId);
-
-            // Check if book is overdue
-            boolean wasOverdue = LocalDate.now().isAfter(activeLoan.getDueDate());
-
-            if (wasOverdue) {
-                // Add infraction for late return
-                user.addLateReturn();
-
-                // Add infraction points based on role
-                int points = getLateReturnPoints(user.getRole());
-                addInfraction(userId, points);
-            }
-
-            Double lateFee = lateFeeByRole.get(user.getRole());
-            if (lateFee == null) {
-                lateFee = 0.50; // Default fallback
-            }
-
-            activeLoan.returnBook(LocalDate.now(), lateFee);
-            double fee = activeLoan.getLateFee();
-
-            book.setAvailable(true);
-            user.removeBorrowedBook(bookId);
-            activeLoans.remove(activeLoan);
-
-            return fee;
-        }
-
-        System.out.println("No active loan found for user " + userId + " and book " + bookId);
-        return -1.0;
-    }
-
-    private int getLateReturnPoints(UserRole role) {
-        // Different points based on role (managers get higher points)
-        switch (role) {
-            case MANAGER:
-                return 3;
-            case EMPLOYEE:
-            case JUNIOR_EMPLOYEE:
-            case VOLUNTEER:
-                return 1;
-            default:
-                return 1;
-        }
-    }
-
-    public void addInfraction(int userId, int points) {
-        User user = users.get(userId);
-        if (user == null) {
-            System.out.println("User not found!");
-            return;
-        }
-
-        user.addInfractionPoints(points);
-
-        int limit = infractionLimitByRole.get(user.getRole());
-        int currentPoints = user.getInfractionPoints();
-
-        // Check thresholds
-        double warningThreshold = limit * 0.15;
-        double suspensionThreshold = limit * 0.50;
-
-        if (currentPoints >= limit) {
-            user.setUserStatus(UserStatus.TERMINATED);
-            System.out.println(user.getName() + " has been TERMINATED due to reaching infraction limit!");
-        } else if (currentPoints >= suspensionThreshold) {
-            if (user.getRole() == UserRole.EMPLOYEE || user.getRole() == UserRole.MANAGER) {
-                user.setUserStatus(UserStatus.TEMPORARY_LEAVE);
-                int weeks = user.getRole() == UserRole.MANAGER ? 0 : 2; // Manager: 3 days
-                user.applySuspension(weeks);
-                System.out.println(user.getName() + " has been placed on TEMPORARY LEAVE!");
-            } else {
-                user.setUserStatus(UserStatus.SUSPENDED);
-                user.applySuspension(1); // 1 week for patrons
-                System.out.println(user.getName() + " has been SUSPENDED for 1 week!");
-            }
-        } else if (currentPoints >= warningThreshold) {
-            user.setUserStatus(UserStatus.WARNING);
-            System.out.println(user.getName() + " has received a WARNING!");
-        }
     }
 
     private boolean isValidLibraryId(int bookId) {
@@ -284,39 +405,33 @@ public class PublicLibrary implements Library {
     @Override
     public List<BorrowRecord> getOverdueBooks() {
         List<BorrowRecord> overdueBooks = new ArrayList<>();
-
         for (BorrowRecord record : activeLoans) {
             if (record.isOverdue()) {
                 overdueBooks.add(record);
             }
         }
-
         return overdueBooks;
     }
 
     @Override
     public List<BorrowRecord> getUserBorrowHistory(int userId) {
         List<BorrowRecord> userHistory = new ArrayList<>();
-
         for (BorrowRecord record : borrowHistory) {
             if (record.getUserId() == userId) {
                 userHistory.add(record);
             }
         }
-
         return userHistory;
     }
 
     @Override
     public double getTotalLateFeesForUser(int userId) {
         double totalFees = 0.0;
-
         for (BorrowRecord record : borrowHistory) {
             if (record.getUserId() == userId) {
                 totalFees += record.getLateFee();
             }
         }
-
         return totalFees;
     }
 
@@ -356,6 +471,10 @@ public class PublicLibrary implements Library {
                 return role == UserRole.EMPLOYEE || role == UserRole.MANAGER;
             case "view_employee_info":
                 return role == UserRole.MANAGER;
+            case "generate_id":
+                return role == UserRole.MANAGER;
+            case "pre_register":
+                return role == UserRole.MANAGER;
             case "view_own_profile":
                 return true;
             default:
@@ -369,19 +488,15 @@ public class PublicLibrary implements Library {
         User target = users.get(targetUserId);
 
         if (viewer == null || target == null) return false;
-
-        // Can view own info
         if (viewerId == targetUserId) return true;
 
         UserRole viewerRole = viewer.getRole();
 
         switch (viewerRole) {
             case MANAGER:
-                return true; // Manager can see everyone
+                return true;
             case EMPLOYEE:
-                // Employee can see patrons and guests
-                return target.getRole() == UserRole.PATRON ||
-                        target.getRole() == UserRole.GUEST;
+                return target.getRole() == UserRole.PATRON || target.getRole() == UserRole.GUEST;
             default:
                 return false;
         }
@@ -393,12 +508,9 @@ public class PublicLibrary implements Library {
         if (manager == null || manager.getRole() != UserRole.MANAGER) {
             return false;
         }
-
-        // Manager cannot change their own role
         if (managerId == targetUserId) {
             return false;
         }
-
         return true;
     }
 
