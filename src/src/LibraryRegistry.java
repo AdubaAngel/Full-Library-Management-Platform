@@ -1,16 +1,9 @@
 import java.util.*;
 
 public class LibraryRegistry {
-    /**
-     * Register a new library with a specific ID pattern
-     * @param name Library name (must be unique)
-     * @param startId Starting ID (e.g., 1000, 2000)
-     * @param increment Increment value (e.g., 7, 5, 10)
-     * @return The registered Library object
-     */
     private Map<Integer, Library> libraries;
     private Map<String, Integer> nameToId;
-    private Map<String, Integer> patternToId; // Track used patterns
+    private Map<String, Integer> patternToId;
     private int nextLibraryId;
 
     public LibraryRegistry() {
@@ -21,58 +14,45 @@ public class LibraryRegistry {
     }
 
     public Library registerLibrary(String name, int startId, int increment,
-                                   int maxBooks, double lateFee, int loanDays) {
-        // Check if name already exists
-        if(nameToId.containsKey(name)) {
-            System.out.println(name + " already exists");
+                                   int employeeBaseLimit, int userBaseLimit) {
+        if (nameToId.containsKey(name)) {
+            System.out.println("❌ Library name '" + name + "' already exists!");
+            return null;
         }
-        // Check if pattern already exists
 
         String patternKey = startId + "+" + increment;
-        if(patternToId.containsKey(patternKey)) {
-            System.out.println( "This pattern is already being used at another library");
+        if (patternToId.containsKey(patternKey)) {
+            System.out.println("❌ Pattern " + patternKey + " already in use!");
+            return null;
         }
-        // Generate new library ID
-        int libraryId = nextLibraryId;
-        nextLibraryId++;
-        // Create new PublicLibrary with all parameters
-        PublicLibrary newLibrary = new PublicLibrary(name, startId, increment);
+
+        int libraryId = nextLibraryId++;
+        PublicLibrary newLibrary = new PublicLibrary(name, startId, increment,
+                employeeBaseLimit, userBaseLimit);
         libraries.put(libraryId, newLibrary);
         nameToId.put(name, libraryId);
         patternToId.put(patternKey, libraryId);
 
-        // Step 6: Success message
-        System.out.println("✅ Library registered: " + name +
-                " (ID: " + libraryId + ", Pattern: " + patternKey + ")");
-
-        // Step 7: Return the new library
+        System.out.println("✅ Library registered: " + name + " (ID: " + libraryId +
+                ", Pattern: " + patternKey + ", Emp Limit: " + employeeBaseLimit +
+                ", User Limit: " + userBaseLimit + ")");
         return newLibrary;
     }
 
     public Library getLibraryByName(String name) {
-        if(nameToId.containsKey(name)) {
-            return libraries.get(nameToId.get(name));
-        }
-        return null;
+        Integer id = nameToId.get(name);
+        return id != null ? libraries.get(id) : null;
     }
 
     public Library getLibraryById(int libraryId) {
-        // Your code here
-        return libraries.getOrDefault(libraryId, null);
+        return libraries.get(libraryId);
     }
 
-
     public List<Library> getAllLibraries() {
-        // Return a list of all libraries from the map
-        ArrayList<Library> libraryList = new ArrayList<>(libraries.values());
-        // using libraries.values() and wrapping it in an ArrayList. Makes it easier to display all the items in the map
-        return libraryList;
+        return new ArrayList<>(libraries.values());
     }
 
     public int getLibraryCount() {
-        int libraryCount = libraries.size();
-        return libraryCount;
+        return libraries.size();
     }
-
-
 }
