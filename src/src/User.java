@@ -11,7 +11,7 @@ public class User {
     private List<Integer> booksBorrowed = new ArrayList<>();
     private UserRole role;
 
-    // New tracking fields
+    // Tracking fields
     private int infractionPoints;
     private int sickDaysTaken;
     private int lateArrivals;
@@ -24,6 +24,7 @@ public class User {
     private boolean hasUsedLeave;
     private LocalDate suspensionEndDate;
 
+    // Constructor for pre-registration (no password)
     public User(String name, String email, String phone, UserRole role) {
         this.name = name;
         this.email = email;
@@ -35,7 +36,7 @@ public class User {
         this.sickDaysTaken = 0;
         this.lateArrivals = 0;
         this.lateReturns = 0;
-        this.userStatus = UserStatus.ACTIVE;
+        this.userStatus = UserStatus.PENDING_REGISTRATION;
         this.pendingLateFees = 0.0;
         this.paidLateFees = 0.0;
         this.suspensionCount = 0;
@@ -112,7 +113,6 @@ public class User {
         this.suspensionEndDate = LocalDate.now().plusWeeks(weeks);
         this.suspensionCount++;
 
-        // For employees/managers, mark that they've used their one chance
         if (role == UserRole.EMPLOYEE || role == UserRole.MANAGER) {
             this.hasUsedLeave = true;
         }
@@ -128,21 +128,19 @@ public class User {
         this.userStatus = UserStatus.ACTIVE;
     }
 
-    // Calculate wait time for next suspension (patrons only)
     public int getSuspensionWaitWeeks() {
-        return this.suspensionCount; // Each suspension adds 1 week
+        return this.suspensionCount;
     }
 
     // Borrowing methods
     public boolean borrowBook(int bookID) {
         if (booksBorrowed.size() >= borrowLimit) {
-            System.out.println("Sorry " + name + " you have reached the limit of books you're allowed to borrow.");
+            System.out.println("Sorry " + name + " you have reached the limit.");
             return false;
         }
 
         if (!booksBorrowed.contains(bookID)) {
             booksBorrowed.add(bookID);
-            System.out.println("Book " + bookID + " added to your borrowed list.");
             return true;
         } else {
             System.out.println("You already have book " + bookID + " checked out.");
@@ -168,7 +166,6 @@ public class User {
 
     // Password methods
     public boolean verifyPassword(String input) {
-        // Simple comparison - in production, use hashed passwords
         return this.password != null && this.password.equals(input);
     }
 
@@ -179,6 +176,10 @@ public class User {
 
     public boolean isActive() {
         return userStatus == UserStatus.ACTIVE && !isCurrentlySuspended();
+    }
+
+    public boolean isPendingRegistration() {
+        return userStatus == UserStatus.PENDING_REGISTRATION;
     }
 
     @Override
