@@ -65,6 +65,7 @@ public class PublicLibrary implements Library {
     @Override
     public int addBook(Book book) {
         int localId = nextBookId;
+        book.setBookID(localId);  // Set the ID here
         books.put(localId, book);
         nextBookId += idIncrements;
         return localId;
