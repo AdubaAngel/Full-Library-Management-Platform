@@ -2,7 +2,7 @@ public enum UserStatus {
     ACTIVE,
     WARNING,
     SUSPENDED,
-    BANNED,
+    TEMPORARY_LEAVE,
     TERMINATED,
-    TEMPORARY_LEAVE
+    PENDING_REGISTRATION
 }
