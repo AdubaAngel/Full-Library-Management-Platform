@@ -68,7 +68,9 @@ public class User {
     public void setPhone(String phone) { this.phone = phone; }
     public void setRole(UserRole role) { this.role = role; }
     public void setUserStatus(UserStatus status) { this.userStatus = status; }
-    public void setPassword(String password) { this.password = password; }
+    public void setPassword(String password) {
+        this.password = password;
+    }
     public void setSuspensionEndDate(LocalDate date) { this.suspensionEndDate = date; }
 
     // Infraction methods
