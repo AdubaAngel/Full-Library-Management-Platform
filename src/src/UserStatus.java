@@ -1,0 +1,8 @@
+public enum UserStatus {
+    ACTIVE,
+    WARNING,
+    SUSPENDED,
+    TEMPORARY_LEAVE,
+    TERMINATED,
+    PENDING_REGISTRATION
+}
